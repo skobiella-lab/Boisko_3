@@ -6,6 +6,10 @@ import sys
 # Dynamiczne dodanie ścieżki głównej projektu, aby uniknąć ModuleNotFoundError
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+# Dodaje aktualny katalog roboczy do ścieżek Pythona
+sys.path.append(os.path.abspath(os.path.curdir))
+
+
 import streamlit as st
 import pandas as pd
 from datetime import datetime
