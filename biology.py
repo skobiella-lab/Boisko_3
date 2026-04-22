@@ -38,6 +38,8 @@ class BiologyEngine:
         om = float(self.profile.get('om_pct', 2.0))
         cn = float(self.profile.get('cn_ratio', 12))
         
+        if cn <= 0: cn = 12.0  # Zabezpieczenie przed ZeroDivisionError
+        
         # Tempo zależne od aktywności mikrobiologicznej (temp i wilgoć)
         rate = (t_avg / 20) * (vmc / 0.25) * (15 / cn)
         return round(om * rate * 0.15, 2) # kg N/ha/dobę

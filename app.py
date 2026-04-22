@@ -285,6 +285,12 @@ with tab_dashboard:
                 delta_color="off"
             )
 
+            with st.expander("🧪 Mikroelementy", expanded=False):
+                micros_data = nut_engine.get_micros_status()
+                for name, info in micros_data.items():
+                    icon = "✅" if info['status'] == "OK" else "⚠️"
+                    st.write(f"{icon} **{name}**: {info['value']} mg/kg")
+
         with col2:
             st.markdown("##### 💧 Status Hydrologiczny")
             st.caption("🌊 **Model:** Fizyka Richardsa - Transport wody w glebie")
@@ -383,6 +389,12 @@ with tab_dashboard:
             tips.append(f"⚠️ **Potas (K):** Poziom {balance['K']['current']} mg/kg jest zbyt niski. Zaplanuj nawożenie.")
         if balance['Mg']['status'] == 'DEFICIT':
             tips.append(f"⚠️ **Magnez (Mg):** Deficyt ({balance['Mg']['current']} mg/kg).")
+        
+        # Analiza mikroelementów
+        micros_status = nut_engine.get_micros_status()
+        for name, info in micros_status.items():
+            if info['status'] == 'DEFICIT':
+                tips.append(f"⚠️ **{name}:** Deficyt ({info['value']} mg/kg). Cel: {info['target']} mg/kg.")
         
         # Dodanie warningów dla azotu
         n_no3 = current_soil.get('hort_n_no3', 0) or 0
@@ -602,7 +614,6 @@ with tab_ferts:
             {"Nazwa": "Agromaster 19-5-20", "N (%)": 19.0, "P (%)": 5.0, "K (%)": 20.0, "Mg (%)": 4.0, "Typ": "CRF (Otoczkowany)"},
             {"Nazwa": "Everris Sierrablen Plus", "N (%)": 24.0, "P (%)": 5.0, "K (%)": 8.0, "Mg (%)": 2.0, "Typ": "Długodziałający"},
             {"Nazwa": "ICL ProTurf High K", "N (%)": 12.0, "P (%)": 5.0, "K (%)": 20.0, "Mg (%)": 2.0, "Typ": "Wieloskładnikowy"},
-            {"Nazwa": "Compo Floranid Twin Permanent", "N (%)": 16.0, "P (%)": 7.0, "K (%)": 15.0, "Mg (%)": 2.0, "Typ": "Uniwersalny"},
             {"Nazwa": "YaraVera AMIDAS", "N (%)": 40.0, "P (%)": 0.0, "K (%)": 0.0, "Mg (%)": 0.0, "Typ": "Azotowy"},
             {"Nazwa": "Chelat Żelaza (Solufeed)", "N (%)": 0.0, "P (%)": 0.0, "K (%)": 0.0, "Mg (%)": 0.0, "Typ": "Interwencyjny Fe"},
             {"Nazwa": "Siarczan Magnezu", "N (%)": 0.0, "P (%)": 0.0, "K (%)": 0.0, "Mg (%)": 16.0, "Typ": "Rozpuszczalny"}
