@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+data/*.db
+reports/*.pdf
+reports/*.xlsx
+.env
+.streamlit/config.toml
+.streamlit/secrets.toml
+data/
+reports/
