@@ -1,7 +1,7 @@
 streamlit
 pandas
 numpy
-plotly
+opencv-python-headless
 fpdf
-kaleido
 requests
+Pillow
