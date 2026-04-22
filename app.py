@@ -2,15 +2,16 @@
 
 import os
 import sys
+from pathlib import Path
 
-# Inteligentne ustawienie ścieżki głównej (Root Path)
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if os.path.exists(os.path.join(current_dir, 'turf_advisor')):
-    # Jeśli app.py jest w roocie, dodaj bieżący folder
-    sys.path.insert(0, current_dir)
-else:
-    # Jeśli app.py jest wewnątrz turf_advisor, dodaj folder nadrzędny
-    sys.path.insert(0, os.path.abspath(os.path.join(current_dir, '..')))
+# Ustalenie ścieżki głównej projektu dla poprawnego działania na Streamlit Cloud
+root_path = Path(__file__).resolve().parent
+if (root_path / "turf_advisor").exists():
+    if str(root_path) not in sys.path:
+        sys.path.insert(0, str(root_path))
+elif root_path.name == "turf_advisor":
+    if str(root_path.parent) not in sys.path:
+        sys.path.insert(0, str(root_path.parent))
 
 import streamlit as st
 import pandas as pd
@@ -312,15 +313,16 @@ with tab_dashboard:
             # Dynamiczne obliczenia na podstawie dzisiejszej pogody
             weather_now = get_cached_weather_history(days=1)
             t_avg_today = 18.0
+            gdd_today = 0.0
             if weather_now:
                 day = weather_now[0]
                 t_avg_today = day.get('temp_avg', 18.0)
                 gdd_today = bio_eng.calculate_gdd(day.get('temp_max', 22), day.get('temp_min', 14))
-                st.write(f"**GDD (dzisiaj):** {gdd_today}")
-                
-                # Model Potencjału Wzrostu (GP)
-                gp = bio_eng.growth_potential_pace(t_avg_today)
-                st.write(f"**Potencjał wzrostu (GP):** {round(gp*100, 1)}%")
+            
+            st.write(f"**GDD (dzisiaj):** {gdd_today}")
+            # Model Potencjału Wzrostu (GP)
+            gp = bio_eng.growth_potential_pace(t_avg_today)
+            st.write(f"**Potencjał wzrostu (GP):** {round(gp*100, 1)}%")
 
             # Obliczanie stabilności przez zdefiniowany wyżej bio_eng
             shear = bio_eng.shear_strength_model(vmc_sim)
@@ -366,8 +368,9 @@ with tab_dashboard:
             else:
                 st.write(f"**Mineralizacja org.:** {organic_n} kg N/ha/rok")
             
-            # Integracja silnika uwalniania azotu (Model 14) - Poprawiono formę z 'nh2' na 'urea'
-            n_release_urea = nut_engine.nitrogen_release_model(0, t_avg_today, form='nh2')
+            # Integracja silnika uwalniania azotu (Model 14)
+            # Poprawiono formę 'nh2' na 'urea', aby silnik nutrition.py poprawnie przeliczył model
+            n_release_urea = nut_engine.nitrogen_release_model(0, t_avg_today, form='urea')
             n_release_nh4 = nut_engine.nitrogen_release_model(0, t_avg_today, form='nh4')
             st.write(f"**Dostępność N-Mocznik:** {round(n_release_urea*100, 1)}%/d")
             st.caption(f"Temp. gleby rzutuje na uwalnianie form NH4: {round(n_release_nh4*100,1)}%/d")
