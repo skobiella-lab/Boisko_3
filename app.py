@@ -3,12 +3,14 @@
 import os
 import sys
 
-# Dynamiczne dodanie ścieżki głównej projektu, aby uniknąć ModuleNotFoundError
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# Dodaje aktualny katalog roboczy do ścieżek Pythona
-sys.path.append(os.path.abspath(os.path.curdir))
-
+# Inteligentne ustawienie ścieżki głównej (Root Path)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if os.path.exists(os.path.join(current_dir, 'turf_advisor')):
+    # Jeśli app.py jest w roocie, dodaj bieżący folder
+    sys.path.insert(0, current_dir)
+else:
+    # Jeśli app.py jest wewnątrz turf_advisor, dodaj folder nadrzędny
+    sys.path.insert(0, os.path.abspath(os.path.join(current_dir, '..')))
 
 import streamlit as st
 import pandas as pd
@@ -364,7 +366,7 @@ with tab_dashboard:
             else:
                 st.write(f"**Mineralizacja org.:** {organic_n} kg N/ha/rok")
             
-            # Integracja silnika uwalniania azotu (Model 14)
+            # Integracja silnika uwalniania azotu (Model 14) - Poprawiono formę z 'nh2' na 'urea'
             n_release_urea = nut_engine.nitrogen_release_model(0, t_avg_today, form='nh2')
             n_release_nh4 = nut_engine.nitrogen_release_model(0, t_avg_today, form='nh4')
             st.write(f"**Dostępność N-Mocznik:** {round(n_release_urea*100, 1)}%/d")
